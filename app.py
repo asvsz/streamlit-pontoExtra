@@ -43,10 +43,10 @@ if file_path is not None:
     st.pyplot(plt)
 
     # 2. Grau de Instrução por Gênero - Gráfico de Barras
-
     st.subheader("Relação entre Gênero e Grau de Instrução")
     grau_gen_counts = filtered_data.groupby(['DS_GRAU_INSTRUCAO', 'DS_GENERO']).size().unstack().fillna(0)
-    grau_gen_counts.plot(kind='bar', stacked=True, figsize=(10, 5))
+    colors= ['#0F52BA', '#87CEFA']
+    grau_gen_counts.plot(kind='bar', stacked=True, figsize=(10, 5), color=colors)
     plt.title('Grau de Instrução por Gênero')
     plt.xlabel('Grau de Instrução')
     plt.ylabel('Quantidade')
@@ -70,15 +70,18 @@ if file_path is not None:
     st.plotly_chart(fig)
 
     # 5. Quantidade de Candidatas Femininas por Partido - Gráfico de Barras
-
     candidatas_femininas = filtered_data[filtered_data['DS_GENERO'] == 'FEMININO']
     partido_fem_counts = candidatas_femininas['SG_PARTIDO'].value_counts()
 
     norm = plt.Normalize(partido_fem_counts.values.min(), partido_fem_counts.values.max())
     colors = plt.cm.Blues(norm(partido_fem_counts.values))
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 8))
     bars = plt.bar(partido_fem_counts.index, partido_fem_counts.values, color=colors)
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.1, int(yval), ha='center', va='bottom')
 
     plt.xticks(rotation=45)
     plt.title('Quantidade de Candidatas Femininas por Partido')
@@ -95,15 +98,18 @@ if file_path is not None:
     st.pyplot(plt)
 
     # 6. Quantidade de Candidatos Masculinos por Partido - Gráfico de Barras
-
     candidatos_masculinos = filtered_data[filtered_data['DS_GENERO'] == 'MASCULINO']
     partido_mas_counts = candidatos_masculinos['SG_PARTIDO'].value_counts()
 
     norm = plt.Normalize(partido_mas_counts.values.min(), partido_mas_counts.values.max())
     colors = plt.cm.Blues(norm(partido_mas_counts.values))
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 8))
     bars = plt.bar(partido_mas_counts.index, partido_mas_counts.values, color=colors)
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval + 0.1, int(yval), ha='center', va='bottom')
 
     plt.xticks(rotation=45)
     plt.title('Quantidade de Candidatos Masculinos por Partido')
@@ -120,8 +126,8 @@ if file_path is not None:
 
     # 7. Proporção de Candidatos Masculinos e Femininos por Partido - Gráfico de Barras
     proporcao_counts = filtered_data.groupby(['SG_PARTIDO', 'DS_GENERO']).size().unstack().fillna(0)
-
-    proporcao_counts.plot(kind='bar', stacked=True, figsize=(10, 5))
+    colors= ['#0F52BA', '#87CEFA']
+    proporcao_counts.plot(kind='bar', stacked=True, figsize=(10, 7), color=colors)
 
     plt.title('Proporção de Candidatos Masculinos e Femininos por Partido')
     plt.xlabel('Partido')
@@ -129,12 +135,15 @@ if file_path is not None:
     plt.xticks(rotation=45)
     plt.legend(title='Gênero')
 
-    for index, value in enumerate(proporcao_counts.values.flatten()):
-        plt.text(index // 2, value + 0.5, int(value), ha='center', va='bottom')
+    for i in range(proporcao_counts.shape[0]):
+        cum_sum = 0
+        for j in range(proporcao_counts.shape[1]):
+            value = proporcao_counts.iloc[i, j]
+            cum_sum += value
+            if value > 0:
+                plt.text(i, cum_sum - value / 2, int(value), ha='center', va='center')
 
     st.pyplot(plt)
-
-
 
 else:
     st.write('Por favor, envie um arquivo CSV.')
